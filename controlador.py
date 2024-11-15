@@ -14,7 +14,6 @@ class GameController:
         self.timer_started = False
         self.block = False
 
-
         # Crear la vista
         self.game_view: GameView = None
         self.main_menu: MainMenu = MainMenu(root, self.start_game, self.show_stats, self.quit_game)
@@ -33,6 +32,9 @@ class GameController:
             messagebox.showerror("Error", "Dificultad no válida.")
 
     def start_game(self):
+        # Genera el tablero y carga las imágenes
+        self.model.generate_board()
+        self.model.load_images()
         # Muestra la ventana de carga y crea una instancia del modelo de juego
         self.show_loading_window("Cargando el tablero...")
         self.check_images_loaded()
@@ -54,6 +56,7 @@ class GameController:
             self.loading_window.destroy()
             self.game_view = GameView(self.on_card_click, 0, self.update_time)
             self.game_view.create_board(self.model.board_size)
+            print(self.model.board)
         else:
             self.root.after(100, self.check_images_loaded)
 
@@ -65,10 +68,13 @@ class GameController:
                 self.timer_started = True
 
             self.selected.append(pos)
-            self.game_view.update_board(pos, self.model.images.get(0))
+            self.game_view.update_board(pos, self.model.images.get(self.model.board[pos[0]][pos[1]]))
 
             if len(self.selected) == 2:
-                self.handle_card_selection()
+                if self.selected[0] != self.selected[1]:
+                    self.handle_card_selection()
+                else:
+                    self.selected.remove(self.selected[1])
 
     def handle_card_selection(self):
         self.block = True

@@ -23,8 +23,8 @@ class GameView:
         """Crea el tablero de juego en una nueva ventana (Toplevel)."""
         self.labels = {}  # Limpiamos las etiquetas anteriores si existen
         hidden_image = descargar_imagen(
-            "https://raw.githubusercontent.com/CarlosAfundacion/juegoMazmorra/refs/heads/main/8.png",
-            (100,100))  # Obtiene la imagen oculta
+            "https://raw.githubusercontent.com/CarlosAfundacion/juegoMazmorra/refs/heads/main/oculto.png",
+            (100, 100))  # Obtiene la imagen oculta
 
         # Crea un grid de etiquetas para representar las cartas en el tablero
         for i in range(board_size):
@@ -54,7 +54,7 @@ class GameView:
         label1 = self.labels.get(pos1)
         label2 = self.labels.get(pos2)
         hidden_image = descargar_imagen(
-            "https://raw.githubusercontent.com/CarlosAfundacion/juegoMazmorra/refs/heads/main/8.png",
+            "https://raw.githubusercontent.com/CarlosAfundacion/juegoMazmorra/refs/heads/main/oculto.png",
             (100, 100))  # Obtiene la imagen oculta
 
         if label1:
