@@ -10,34 +10,36 @@ class GameView:
         self.update_move_count_callback = update_move_count_callback
         self.update_time_callback = update_time_callback
 
-        # Inicializamos los atributos para la vista
-        self.window = None
-        self.labels = {}
-        self.time_label = None
-        self.move_label = None
-
-    def create_board(self, board_size):
-        """Crea el tablero de juego en una nueva ventana (Toplevel)."""
         # Crea una nueva ventana TopLevel para el tablero de juego
         self.window = Toplevel()
         self.window.title("Juego de Memoria")
+
+        # Inicializamos los atributos para la vista
+        self.labels = {}
+        self.move_label = Label(self.window, text="Movimientos: 0", font=("Helvetica", 12))
+        self.time_label = Label(self.window, text="Tiempo: 0", font=("Helvetica", 12))
+
+    def create_board(self, board_size):
+        """Crea el tablero de juego en una nueva ventana (Toplevel)."""
         self.labels = {}  # Limpiamos las etiquetas anteriores si existen
+        hidden_image = descargar_imagen(
+            "https://raw.githubusercontent.com/CarlosAfundacion/juegoMazmorra/refs/heads/main/8.png",
+            (100,100))  # Obtiene la imagen oculta
 
         # Crea un grid de etiquetas para representar las cartas en el tablero
         for i in range(board_size):
             for j in range(board_size):
                 pos = (i, j)
-                label = Label(self.window, width=10, height=5, relief="raised", bg="gray")
+                label = Label(self.window, width=100, height=100, relief="raised", bg="gray")
                 label.grid(row=i, column=j, padx=5, pady=5)
+                label.config(image=hidden_image)
+                label.image = hidden_image  # Actualiza la referencia a la imagen
                 # Asignamos una función de callback para el clic de cada carta
-                label.bind("<Button-1>", self.on_card_click_callback(pos))
+                label.bind("<Button-1>", lambda event, p=pos: self.on_card_click_callback(p))
                 self.labels[pos] = label
 
         # Etiquetas para el contador de movimientos y el temporizador
-        self.move_label = Label(self.window, text="Movimientos: 0", font=("Helvetica", 12))
         self.move_label.grid(row=board_size, column=0, columnspan=board_size, pady=10)
-
-        self.time_label = Label(self.window, text="Tiempo: 0", font=("Helvetica", 12))
         self.time_label.grid(row=board_size + 1, column=0, columnspan=board_size, pady=10)
 
     def update_board(self, pos, image_id):
@@ -51,7 +53,9 @@ class GameView:
         """Restaura las imágenes de dos cartas a su estado oculto."""
         label1 = self.labels.get(pos1)
         label2 = self.labels.get(pos2)
-        hidden_image = descargar_imagen("https://raw.githubusercontent.com/JacoboPBV/ampliacionTkinter/refs/heads/main/fotoEjemplo.jpg", (1, 1))  # Obtiene la imagen oculta
+        hidden_image = descargar_imagen(
+            "https://raw.githubusercontent.com/CarlosAfundacion/juegoMazmorra/refs/heads/main/8.png",
+            (100, 100))  # Obtiene la imagen oculta
 
         if label1:
             label1.config(image=hidden_image)

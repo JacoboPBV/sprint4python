@@ -35,22 +35,22 @@ class GameModel:
     def _generate_board(self):
         # Genera pares de identificadores de imágenes y los mezcla
         num_pairs = (self.board_size ** 2) // 2
-        image_ids = [f"img{i}" for i in range(num_pairs)] * 2  # Crear pares de imágenes
+        image_ids = [f"{i+1}" for i in range(8)] * 2  # Crear pares de imágenes
         random.shuffle(image_ids)
         self.board = [image_ids[i:i + self.board_size] for i in range(0, len(image_ids), self.board_size)]
 
     def _load_images(self):
         # Carga las imágenes en un hilo separado
         def load():
-            url = "https://raw.githubusercontent.com/JacoboPBV/ampliacionTkinter/refs/heads/main/fotoEjemplo.jpg"  # URL base para las imágenes
+            base_url = "https://raw.githubusercontent.com/CarlosAfundacion/juegoMazmorra/refs/heads/main/"  # URL base para las imágenes
             try:
-                for img_id in set(sum(self.board, [])):
-                    self.hidden_image = descargar_imagen(url,(self.cell_size, self.cell_size))
-                    self.images[img_id] = descargar_imagen(url, (self.cell_size, self.cell_size))
+                self.hidden_image = descargar_imagen(base_url + "oculto.png", (self.cell_size, self.cell_size))
+                for img_id in set(sum(self.board, [])):  # Lista única de identificadores de imágenes
+                    img_url = base_url + f"{img_id}.png"
+                    self.images[img_id] = descargar_imagen(img_url, (self.cell_size, self.cell_size))
                 self.images_loaded.set()  # Indica que todas las imágenes están cargadas
             except Exception as e:
                 print(f"Error al cargar imágenes: {e}")
-
         threading.Thread(target=load, daemon=True).start()
 
     def images_are_loaded(self):
@@ -68,10 +68,12 @@ class GameModel:
     def check_match(self, pos1, pos2):
         # Verifica si dos posiciones en el tablero contienen la misma imagen
         self.moves += 1
+        print(self.board)
         row1, col1 = pos1
         row2, col2 = pos2
         if self.board[row1][col1] == self.board[row2][col2]:
             self.pairs_found += 1
+            print("SI")
             return True
         return False
 
