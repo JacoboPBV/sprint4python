@@ -2,7 +2,7 @@ import requests
 from PIL import Image, ImageTk
 import io
 
-def descargar_imagen(url, size):
+def descargar_imagen(url, size, timeout=10):
     """
     Descarga una imagen desde una URL, la redimensiona al tamaño especificado, y la convierte en un formato compatible con Tkinter.
 
@@ -16,7 +16,7 @@ def descargar_imagen(url, size):
     """
     try:
         # Realiza una solicitud GET para descargar la imagen desde la URL
-        response = requests.get(url)
+        response = requests.get(url, timeout=timeout)
         response.raise_for_status()  # Verifica si la solicitud fue exitosa
 
         # Abre la imagen desde los datos descargados
@@ -29,6 +29,9 @@ def descargar_imagen(url, size):
         # Convierte la imagen a un formato compatible con Tkinter y la devuelve
         return ImageTk.PhotoImage(image)
 
+    except requests.exceptions.Timeout:
+        print("Error: La descarga de la imagen ha superado el tiempo límite. Volviendo a intentarlo...")
+        return None
     except requests.RequestException as e:
         # Si ocurre un error en la solicitud, muestra un mensaje de error y devuelve None
         print(f"Error al descargar la imagen desde {url}: {e}")
