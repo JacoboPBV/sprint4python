@@ -3,10 +3,11 @@ import time
 import random
 import datetime
 from recursos import descargar_imagen  # Asegúrate de tener descargar_imagen en recursos.py
-
+from vista import LoadingWindow
 
 class GameModel:
-    def __init__(self, difficulty, player_name, cell_size=100):
+    def __init__(self, difficulty="facil", player_name="Anónimo", cell_size=(66, 100)):
+        self.board_size = None
         self.difficulty = difficulty
         self.player_name = player_name
         self.cell_size = cell_size
@@ -18,33 +19,35 @@ class GameModel:
         self.board = []
         self.images = {}
 
+    def generate_board(self):
         # Configuración del tamaño del tablero basado en la dificultad
-        if self.difficulty == "fácil":
+        if self.difficulty == "facil":
             self.board_size = 4
         elif self.difficulty == "medio":
             self.board_size = 6
-        elif self.difficulty == "difícil":
+        elif self.difficulty == "dificil":
             self.board_size = 8
         else:
             raise ValueError("Dificultad no válida.")
-
-    def generate_board(self):
+        
         # Genera pares de identificadores de imágenes y los mezcla
         num_pairs = (self.board_size ** 2) // 2
         image_ids = [f"{i + 1}" for i in range(num_pairs)] * 2  # Crear pares de imágenes
         random.shuffle(image_ids)
         self.board = [image_ids[i:i + self.board_size] for i in range(0, len(image_ids), self.board_size)]
 
-    def load_images(self):
+    def load_images(self, window: LoadingWindow):
         # Carga las imágenes en un hilo separado
         def load():
-            base_url = "https://raw.githubusercontent.com/CarlosAfundacion/juegoMazmorra/refs/heads/main/"  # URL base para las imágenes
+            base_url = "https://raw.githubusercontent.com/JacoboPBV/sprint4python/refs/heads/main/Chord_Collection/"  # URL base para las imágenes
             try:
-                self.hidden_image = descargar_imagen(base_url + "oculto.png", (self.cell_size, self.cell_size))
+                self.hidden_image = descargar_imagen(base_url + "hidden.png", self.cell_size)
                 for img_id in set(sum(self.board, [])):  # Lista única de identificadores de imágenes
                     img_url = base_url + f"{img_id}.png"
-                    print(f"Descargando imagen {img_id}")
-                    self.images[img_id] = descargar_imagen(img_url, (self.cell_size, self.cell_size))
+                    self.images[img_id] = descargar_imagen(img_url, self.cell_size)
+                    while self.images[img_id] is None:
+                        self.images[img_id] = descargar_imagen(img_url, self.cell_size)
+                    window.update_progress(1)
                 self.images_loaded.set()  # Indica que todas las imágenes están cargadas
             except Exception as e:
                 print(f"Error al cargar imágenes: {e}")
@@ -70,10 +73,7 @@ class GameModel:
         row2, col2 = pos2
         if self.board[row1][col1] == self.board[row2][col2]:
             self.pairs_found += 1
-            print("Acierto")
             return True
-        else:
-            print("Fallo")
         return False
 
     def is_game_complete(self):
@@ -106,7 +106,7 @@ class GameModel:
 
     def load_scores(self):
         # Carga y devuelve las puntuaciones desde ranking.txt
-        scores = {"fácil": [], "medio": [], "difícil": []}
+        scores = {"facil": [], "medio": [], "dificil": []}
         try:
             with open("ranking.txt", "r") as file:
                 for line in file:

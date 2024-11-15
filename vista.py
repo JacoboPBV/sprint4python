@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import simpledialog, Toplevel, Label
-from recursos import descargar_imagen
+from tkinter import ttk
 
 
 class GameView:
@@ -19,28 +19,28 @@ class GameView:
         self.move_label = Label(self.window, text="Movimientos: 0", font=("Helvetica", 12))
         self.time_label = Label(self.window, text="Tiempo: 0", font=("Helvetica", 12))
 
-    def create_board(self, board_size):
+        self.hidden_image = None
+
+    def create_board(self, model):
         """Crea el tablero de juego en una nueva ventana (Toplevel)."""
         self.labels = {}  # Limpiamos las etiquetas anteriores si existen
-        hidden_image = descargar_imagen(
-            "https://raw.githubusercontent.com/CarlosAfundacion/juegoMazmorra/refs/heads/main/oculto.png",
-            (100, 100))  # Obtiene la imagen oculta
+        self.hidden_image = model.hidden_image
 
         # Crea un grid de etiquetas para representar las cartas en el tablero
-        for i in range(board_size):
-            for j in range(board_size):
+        for i in range(model.board_size):
+            for j in range(model.board_size):
                 pos = (i, j)
-                label = Label(self.window, width=100, height=100, relief="raised", bg="gray")
+                label = Label(self.window, width=66, height=100, relief="raised", bg="gray")
                 label.grid(row=i, column=j, padx=5, pady=5)
-                label.config(image=hidden_image)
-                label.image = hidden_image  # Actualiza la referencia a la imagen
+                label.config(image=self.hidden_image)
+                label.image = self.hidden_image  # Actualiza la referencia a la imagen
                 # Asignamos una función de callback para el clic de cada carta
                 label.bind("<Button-1>", lambda event, p=pos: self.on_card_click_callback(p))
                 self.labels[pos] = label
 
         # Etiquetas para el contador de movimientos y el temporizador
-        self.move_label.grid(row=board_size, column=0, columnspan=board_size, pady=10)
-        self.time_label.grid(row=board_size + 1, column=0, columnspan=board_size, pady=10)
+        self.move_label.grid(row=model.board_size, column=0, columnspan=model.board_size, pady=10)
+        self.time_label.grid(row=model.board_size + 1, column=0, columnspan=model.board_size, pady=10)
 
     def update_board(self, pos, image_id):
         """Actualiza la imagen de la carta en una posición específica."""
@@ -53,16 +53,13 @@ class GameView:
         """Restaura las imágenes de dos cartas a su estado oculto."""
         label1 = self.labels.get(pos1)
         label2 = self.labels.get(pos2)
-        hidden_image = descargar_imagen(
-            "https://raw.githubusercontent.com/CarlosAfundacion/juegoMazmorra/refs/heads/main/oculto.png",
-            (100, 100))  # Obtiene la imagen oculta
 
         if label1:
-            label1.config(image=hidden_image)
-            label1.image = hidden_image  # Actualiza la referencia a la imagen
+            label1.config(image=self.hidden_image)
+            label1.image = self.hidden_image  # Actualiza la referencia a la imagen
         if label2:
-            label2.config(image=hidden_image)
-            label2.image = hidden_image  # Actualiza la referencia a la imagen
+            label2.config(image=self.hidden_image)
+            label2.image = self.hidden_image  # Actualiza la referencia a la imagen
 
     def update_move_count(self, moves):
         """Actualiza el contador de movimientos en la interfaz."""
@@ -115,3 +112,25 @@ class MainMenu:
         # Botón para cerrar la ventana de estadísticas
         tk.Button(stats_window, text="Cerrar", command=stats_window.destroy).grid(row=len(stats) * 6 + 1,
                                                                                   column=0, pady=10)
+
+
+class LoadingWindow:
+    def __init__(self, root, total_images):
+        self.window = tk.Toplevel(root)
+        self.window.title("Cargando imágenes")
+        self.window.geometry("300x150")
+        self.window.resizable(False, False)
+
+        self.label = tk.Label(self.window, text="Descargando imágenes...")
+        self.label.pack(pady=10)
+
+        self.progress = ttk.Progressbar(self.window, orient="horizontal", length=250, mode="determinate")
+        self.progress.pack(pady=20)
+
+        self.total_images = total_images
+        self.current_progress = 0
+        self.progress["maximum"] = total_images
+
+    def update_progress(self, value):
+        self.current_progress += value
+        self.progress["value"] = self.current_progress

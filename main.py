@@ -10,7 +10,7 @@ if __name__ == "__main__":
     # Inicialización del modelo del juego
     # Aquí puedes definir la dificultad inicial y el nombre del jugador
     # Por ejemplo, dificultad "normal" y jugador "Anónimo"
-    model = GameModel(difficulty="fácil", player_name="Jacobo")
+    model = GameModel()
 
     # Inicialización del controlador del juego
     # El controlador manejará el flujo y lógica del juego
