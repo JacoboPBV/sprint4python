@@ -75,13 +75,13 @@ class GameController:
                 self.selected.remove(self.selected[1])
 
     def handle_card_selection(self):
-        self.is_processing = True
         # Verifica si las cartas seleccionadas coinciden
         pos1, pos2 = self.selected
         if self.model.check_match(pos1, pos2):
             self.game_view.update_move_count(self.model.moves)
             self.check_game_complete()
         else:
+            self.is_processing = True  # Bloquea los clics hasta que se reseteen las cartas
             self.game_view.update_move_count(self.model.moves)
             self.root.after(500, lambda: self.reset_after_delay(pos1, pos2))
         self.selected = []
